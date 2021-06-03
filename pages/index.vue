@@ -19,6 +19,7 @@
 
 <script>
 import { Component, Vue } from 'nuxt-property-decorator'
+import axios from 'axios'
 
 @Component
 export default class IndexPage extends Vue {

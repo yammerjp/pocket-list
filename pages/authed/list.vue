@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-btn color="primary" rounded @click="logout"> logout </v-btn>
     <div v-for="(website, idx) of websites" :key="idx">
       <h3>
         <a :href="website.url">
@@ -74,52 +75,54 @@ export default class RedirectedPage extends Vue {
     // eslint-disable-next-line no-console
     console.log(list)
 
-    const websites: Website[] = list
-      .map((elm: any) => {
-        const id = Number(elm.item_id)
-        if (isNaN(id)) {
-          // eslint-disable-next-line no-console
-          console.error(`invalid item_id: ${elm.item_id}`)
-          return undefined
-        }
+    const websites: (Website | undefined)[] = list.map((elm: any) => {
+      const id = Number(elm.item_id)
+      if (isNaN(id)) {
+        // eslint-disable-next-line no-console
+        console.error(`invalid item_id: ${elm.item_id}`)
+        return undefined
+      }
 
-        if (isNaN(Number(elm.time_updated))) {
-          // eslint-disable-next-line no-console
-          console.error(`invalid time_updated: ${elm.time_updated}`)
-          return undefined
-        }
-        const updatedAt = new Date(Number(elm.time_updated) * 1000)
+      if (isNaN(Number(elm.time_updated))) {
+        // eslint-disable-next-line no-console
+        console.error(`invalid time_updated: ${elm.time_updated}`)
+        return undefined
+      }
+      const updatedAt = new Date(Number(elm.time_updated) * 1000)
 
-        if (isNaN(Number(elm.time_added))) {
-          // eslint-disable-next-line no-console
-          console.error(`invalid time_added: ${elm.time_added}`)
-          return undefined
-        }
-        const createdAt = new Date(Number(elm.time_added) * 1000)
+      if (isNaN(Number(elm.time_added))) {
+        // eslint-disable-next-line no-console
+        console.error(`invalid time_added: ${elm.time_added}`)
+        return undefined
+      }
+      const createdAt = new Date(Number(elm.time_added) * 1000)
 
-        const url = elm.resolved_url ?? elm.given_url ?? elm.amp_url ?? ''
-        const slice = url.split('/')
-        if (slice.length < 3) {
-          // eslint-disable-next-line no-console
-          console.error(`invalid url: ${url}`)
-          return undefined
-        }
-        const host = slice[2]
+      const url = elm.resolved_url ?? elm.given_url ?? elm.amp_url ?? ''
+      const slice = url.split('/')
+      if (slice.length < 3) {
+        // eslint-disable-next-line no-console
+        console.error(`invalid url: ${url}`)
+        return undefined
+      }
+      const host = slice[2]
 
-        const website: Website = {
-          title: elm.resolved_title ?? elm.given_title ?? '',
-          description: elm.excerpt ?? '',
-          img: elm.top_image_url ?? undefined,
-          url,
-          host,
-          id,
-          createdAt,
-          updatedAt,
-        }
-        return website
-      })
-      .filter((elm: Website | undefined) => !!elm)
-    this.websites = websites.sort(
+      const website: Website = {
+        title: elm.resolved_title ?? elm.given_title ?? '',
+        description: elm.excerpt ?? '',
+        img: elm.top_image_url ?? undefined,
+        url,
+        host,
+        id,
+        createdAt,
+        updatedAt,
+      }
+      return website
+    })
+    // @ts-ignore
+    const websiteFiltered: Website[] = websites.filter(
+      (elm: Website | undefined) => !!elm
+    )
+    this.websites = websiteFiltered.sort(
       (a: Website, b: Website) => b.createdAt.getTime() - a.createdAt.getTime()
     )
   }
@@ -144,6 +147,11 @@ export default class RedirectedPage extends Vue {
     } else {
       return elapsed.getUTCSeconds() + 'たった今'
     }
+  }
+
+  logout() {
+    window.localStorage.removeItem('getPocketAccessToken')
+    this.$router.push('/')
   }
 }
 </script>

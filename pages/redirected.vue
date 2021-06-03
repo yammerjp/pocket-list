@@ -14,6 +14,7 @@ export default class RedirectedPage extends Vue {
       this.$router.push('/')
     }
     window.localStorage.removeItem('getPocketCode')
+    // eslint-disable-next-line no-console
     console.log(code)
 
     await axios
@@ -21,15 +22,17 @@ export default class RedirectedPage extends Vue {
         code,
       })
       .then((res) => {
+        // eslint-disable-next-line no-console
         console.log('res')
         window.localStorage.setItem(
           'getPocketAccessToken',
           res.data.accessToken
         )
         window.localStorage.setItem('getPocketUsername', res.data.username)
-        this.$router.push('/list')
+        this.$router.push('/authed/list')
       })
       .catch((e) => {
+        // eslint-disable-next-line no-console
         console.log(e)
       })
   }
