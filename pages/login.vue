@@ -15,10 +15,11 @@ export default class LoginPage extends Vue {
         const { code } = res.data
         window.localStorage.setItem('getPocketCode', code)
         const redirectUri = 'http://localhost:3000/redirected'
-        console.log(res.data.code)
+        // eslint-disable-next-line no-console
         console.log(res)
         window.location.href = `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}`
       })
+      // eslint-disable-next-line no-console
       .catch((e) => console.error(e))
   }
 }

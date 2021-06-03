@@ -24,7 +24,7 @@ export default class RedirectedPage extends Vue {
         console.log('res')
         window.localStorage.setItem(
           'getPocketAccessToken',
-          res.data.access_token
+          res.data.accessToken
         )
         window.localStorage.setItem('getPocketUsername', res.data.username)
         this.$router.push('/list')

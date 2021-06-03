@@ -2,14 +2,58 @@ import express from 'express'
 import dotenv from 'dotenv'
 import axios from 'axios'
 
-import bodyParser from 'body-parser'
-
 dotenv.config()
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
 const app = express()
 
-app.use(bodyParser.json())
+app.use(express.json())
+
+class ResponseError extends Error {
+  statusCode: number
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode
+  }
+}
+
+type Response = {
+  errorMessage?: string
+  code?: string
+  accessToken?: string
+  data?: any
+}
+
+type ServerFunction = {
+  (req: express.Request): Promise<Response>
+}
+
+const reject = (message: string, statusCode: number) =>
+  Promise.reject(new ResponseError(message, statusCode))
+
+const post = (requestPath: string, fn: ServerFunction) => {
+  app.post(requestPath, (req: express.Request, res: express.Response) => {
+    fn(req)
+      .then((obj) => {
+        res.json(obj).end()
+      })
+      .catch((e: Error | ResponseError) => {
+        let statusCode = 500
+        if (
+          e instanceof ResponseError &&
+          (e.statusCode < 400 || e.statusCode >= 600)
+        ) {
+          statusCode = e.statusCode
+        }
+        res
+          .status(statusCode)
+          .json({
+            errorMessage: `${e}`,
+          })
+          .end()
+      })
+  })
+}
 
 app.get('/', (req, res) => {
   // eslint-disable-next-line no-console
@@ -17,75 +61,62 @@ app.get('/', (req, res) => {
   res.send('hello, world!')
 })
 
-app.post('/login', async (req, res) => {
-  const pocketResponse: any = await axios
-    .post(
-      'https://getpocket.com/v3/oauth/request',
-      {
-        consumer_key: pocketConsumerKey,
-        redirect_uri: 'http://localhost/redirected',
-      },
-      { headers: { 'X-Accept': 'application/json' } }
-    )
-    .catch((e) => {
-      console.log(e)
-      res.status(500).end()
-    })
-
-  // console.log(pocketResponse.data.code)
-  console.log(pocketResponse)
-  res.json({ code: pocketResponse.data.code }).end()
+// codeを返す
+post('/login', async (_) => {
+  const pocketResponse: any = await axios.post(
+    'https://getpocket.com/v3/oauth/request',
+    {
+      consumer_key: pocketConsumerKey,
+      redirect_uri: 'http://localhost/redirected',
+    },
+    { headers: { 'X-Accept': 'application/json' } }
+  )
+  const code = pocketResponse?.data?.code
+  if (typeof code !== 'string') {
+    return reject('pocket return invalid response', 500)
+  }
+  return { code }
 })
 
-app.post('/authorize', async (req: any, res) => {
-  console.log('/authorize')
-  console.log(req)
-  if (!req?.body?.code) {
-    res.status(400).end()
-    return
+// codeを受け取ってaccess_tokenを返す
+post('/authorize', async (req: express.Request) => {
+  const code = req?.body?.code
+  if (typeof code !== 'string') {
+    return reject('request is invalid', 400)
   }
-  const { code } = req.body
-  const pocketResponse: any = await axios
-    .post(
-      'https://getpocket.com/v3/oauth/authorize',
-      {
-        // consumer_key: pocketConsumerKey,
-        consumer_key: pocketConsumerKey,
-        code,
-      },
-      { headers: { 'X-Accept': 'application/json' } }
-    )
-    .catch((e) => {
-      console.log(e)
-      res.status(500).end()
-    })
-  res.json({ access_token: pocketResponse.data.access_token }).end()
+  const res = await axios.post(
+    'https://getpocket.com/v3/oauth/authorize',
+    {
+      // consumer_key: pocketConsumerKey,
+      consumer_key: pocketConsumerKey,
+      code,
+    },
+    { headers: { 'X-Accept': 'application/json' } }
+  )
+  const accessToken = res?.data?.access_token
+  if (typeof accessToken !== 'string') {
+    return reject('getpocket return invalid response', 500)
+  }
+  return { accessToken }
 })
 
-app.post('/list', async (req: any, res) => {
-  const { access_token } = req.body
-  if (!access_token) {
-    res.status(400).end()
+post('/list', async (req: express.Request) => {
+  const accessToken = req?.body?.accessToken
+  if (typeof accessToken !== 'string') {
+    return reject('invalid request. need accessToken', 400)
   }
-  const pocketResponse: any = await axios
-    .post(
-      'https://getpocket.com/v3/get',
-      {
-        consumer_key: pocketConsumerKey,
-        access_token,
-        count: 10,
-        detailType: 'complete',
-      },
-      { headers: { 'X-Accept': 'application/json' } }
-    )
-    .then((pocketResponse) => {
-      console.log(pocketResponse)
-      res.json({ data: pocketResponse.data }).end()
-    })
-    .catch((e) => {
-      console.log(e)
-      res.status(500).end()
-    })
+  const res = await axios.post(
+    'https://getpocket.com/v3/get',
+    {
+      consumer_key: pocketConsumerKey,
+      access_token: accessToken,
+      count: 10,
+      detailType: 'complete',
+      state: 'all',
+    },
+    { headers: { 'X-Accept': 'application/json' } }
+  )
+  return res?.data
 })
 
 export default {
