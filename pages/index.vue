@@ -31,7 +31,7 @@ export default class IndexPage extends Vue {
       return
     }
     axios
-      .post('/api/login', {})
+      .post('/api/pre-authorize', {})
       .then((res) => {
         const { code } = res.data
         window.localStorage.setItem('getPocketCode', code)

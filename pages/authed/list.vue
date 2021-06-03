@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-btn color="primary" rounded @click="logout"> logout </v-btn>
-    <div v-for="(website, idx) of websites" :key="idx">
+    <div v-for="(website, idx) of websites" :key="idx" style="margin: 16px">
       <h3>
         <a :href="website.url">
           {{ website.title }}

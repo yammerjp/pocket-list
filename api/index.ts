@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
 })
 
 // codeを返す
-post('/login', async (_) => {
+post('/pre-authorize', async (_) => {
   const pocketResponse: any = await axios.post(
     'https://getpocket.com/v3/oauth/request',
     {
