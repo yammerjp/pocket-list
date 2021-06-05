@@ -19,29 +19,27 @@
 
 <script>
 import { Component, Vue } from 'nuxt-property-decorator'
-import axios from 'axios'
+import client from '../assets/client'
 
 @Component
 export default class IndexPage extends Vue {
-  login() {
-    const accessToken = window.localStorage.getItem('getPocketAccessToken')
-    if (typeof accessToken === 'string') {
+  mounted() {
+    if (client.loggedIn()) {
+      this.$router.push('/authed/list')
+    }
+  }
+
+  async login() {
+    const { loggedIn, transition } = await client.tryLogin()
+    if (loggedIn) {
       alert('already logined')
       this.$router.push('/authed/list')
       return
+    } else if (transition) {
+      window.location.href = transition
+      return
     }
-    axios
-      .post('/api/pre-authorize', {})
-      .then((res) => {
-        const { code } = res.data
-        window.localStorage.setItem('getPocketCode', code)
-        const redirectUri = 'http://localhost:3000/redirected'
-        // eslint-disable-next-line no-console
-        console.log(res)
-        window.location.href = `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}`
-      })
-      // eslint-disable-next-line no-console
-      .catch((e) => console.error(e))
+    alert('failed to try login')
   }
 }
 </script>

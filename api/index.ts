@@ -119,6 +119,28 @@ post('/list', async (req: express.Request) => {
   return res?.data
 })
 
+app.get(/\/img\/.*$/, async (req, res) => {
+  const reqPath = req.path.slice(5)
+  const responsed = await axios
+    .get(`https://${process.env.SCREENSHOT_HOST}/${reqPath}`, {
+      maxRedirects: 0,
+    })
+    .catch((e) => {
+      return e.response
+    })
+  if (responsed?.status !== 302) {
+    res.status(400).send('invalid request').end()
+    return
+  }
+
+  const location = responsed?.headers?.location
+  if (typeof location !== 'string') {
+    res.status(500).send('internal server error').end()
+    return
+  }
+  res.redirect(302, location)
+})
+
 export default {
   path: '/api/',
   handler: app,

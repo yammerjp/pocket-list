@@ -1,157 +1,179 @@
 <template>
   <div>
-    <v-btn color="primary" rounded @click="logout"> logout </v-btn>
-    <div v-for="(website, idx) of websites" :key="idx" style="margin: 16px">
-      <h3>
-        <a :href="website.url">
-          {{ website.title }}
-        </a>
-      </h3>
-      <div>
-        {{ website.description }}
+    <div class="slider-wrapper">
+      小
+      <v-slider
+        v-model="column"
+        :max="columnMax"
+        min="1"
+        ticks="always"
+        tick-size="4"
+      ></v-slider>
+      大
+    </div>
+    <div ref="websites" v-resize="onResize" class="websites">
+      <div v-for="(website, idx) of websites" :key="idx" class="website">
+        <div :style="`width: ${columnWidth}px`">
+          <a :href="website.url" target="_blank" rel="noopener">
+            <div>
+              <img
+                :src="screenshot(website.url)"
+                :width="columnWidth"
+                :height="(columnWidth * 9) / 16"
+              />
+              <h3 :style="`font-size: ${titleSize}px`">
+                {{ website.title }}
+              </h3>
+            </div>
+          </a>
+          <!--
+          <div>
+            {{ website.description }}
+          </div>
+          -->
+          <small>
+            {{ website.host }}
+            -
+            {{ timeDiff(website.createdAt) }}
+          </small>
+        </div>
       </div>
-      <small>
-        {{ website.host }}
-        -
-        {{ timeDiff(website.createdAt) }}
-      </small>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'nuxt-property-decorator'
-import axios from 'axios'
-
-type Website = {
-  id: number
-  createdAt: Date
-  updatedAt: Date
-  title: string
-  description: string
-  url: string
-  host: string
-  img?: string
-}
+import Website from '../../types/website'
+import client from '../../assets/client'
 
 @Component
 export default class RedirectedPage extends Vue {
-  accessToken = ''
+  websitesWidth = 116
+  column = 0
+
+  get columnMax() {
+    return Math.floor(this.websitesWidth / 100)
+  }
+
+  get columnWidth() {
+    return (
+      Math.floor(this.websitesWidth / (this.columnMax - this.column + 1)) - 16
+    )
+  }
+
+  get titleSize() {
+    if (this.columnWidth < 100) {
+      return 10
+    }
+    if (this.columnWidth < 150) {
+      return 13
+    }
+    if (this.columnWidth < 200) {
+      return 14
+    }
+    if (this.columnWidth < 300) {
+      return 16
+    }
+    if (this.columnWidth < 300) {
+      return 18
+    }
+    if (this.columnWidth < 400) {
+      return 20
+    }
+    if (this.columnWidth < 500) {
+      return 22
+    }
+    if (this.columnWidth < 600) {
+      return 24
+    }
+    return 32
+  }
+
   websites: Website[] = []
 
   mounted() {
-    this.loadAccessToken()
-    this.fetchWebsites()
-  }
-
-  loadAccessToken() {
-    const accessToken = window.localStorage.getItem('getPocketAccessToken')
-    if (!accessToken) {
+    if (!client.loggedIn()) {
       this.$router.push('/')
       return
     }
-    this.accessToken = accessToken
+    this.fetchWebsites()
+    this.onResize()
+    this.column = this.columnMax
+  }
+
+  onResize() {
+    // ウィンドウサイズが変わったときにカラム数が極端に変更されることを防ぐ
+    const columnMaxBefore = this.columnMax
+    this.websitesWidth = (this.$refs.websites as Element).clientWidth
+    const newColumn = Math.round(
+      (this.columnMax * this.column) / columnMaxBefore
+    )
+    this.column = Math.min(newColumn, this.columnMax)
   }
 
   async fetchWebsites() {
-    const list = await axios
-      .post('/api/list', { accessToken: this.accessToken })
-      .then((res) => {
-        // eslint-disable-next-line no-console
-        console.log(res)
-        if (typeof res?.data?.list !== 'object') {
-          return []
-        }
-        return Object.keys(res.data.list).map((key) => res.data.list[key])
-      })
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.error(e)
-        return []
-      })
-
-    // eslint-disable-next-line no-console
-    console.log('fetched request')
-    // eslint-disable-next-line no-console
-    console.log(list)
-
-    const websites: (Website | undefined)[] = list.map((elm: any) => {
-      const id = Number(elm.item_id)
-      if (isNaN(id)) {
-        // eslint-disable-next-line no-console
-        console.error(`invalid item_id: ${elm.item_id}`)
-        return undefined
-      }
-
-      if (isNaN(Number(elm.time_updated))) {
-        // eslint-disable-next-line no-console
-        console.error(`invalid time_updated: ${elm.time_updated}`)
-        return undefined
-      }
-      const updatedAt = new Date(Number(elm.time_updated) * 1000)
-
-      if (isNaN(Number(elm.time_added))) {
-        // eslint-disable-next-line no-console
-        console.error(`invalid time_added: ${elm.time_added}`)
-        return undefined
-      }
-      const createdAt = new Date(Number(elm.time_added) * 1000)
-
-      const url = elm.resolved_url ?? elm.given_url ?? elm.amp_url ?? ''
-      const slice = url.split('/')
-      if (slice.length < 3) {
-        // eslint-disable-next-line no-console
-        console.error(`invalid url: ${url}`)
-        return undefined
-      }
-      const host = slice[2]
-
-      const website: Website = {
-        title: elm.resolved_title ?? elm.given_title ?? '',
-        description: elm.excerpt ?? '',
-        img: elm.top_image_url ?? undefined,
-        url,
-        host,
-        id,
-        createdAt,
-        updatedAt,
-      }
-      return website
+    const websites = await client.fetchWebsites().catch((e) => {
+      // eslint-disable-next-line no-console
+      console.error(e)
+      return undefined
     })
-    // @ts-ignore
-    const websiteFiltered: Website[] = websites.filter(
-      (elm: Website | undefined) => !!elm
-    )
-    this.websites = websiteFiltered.sort(
-      (a: Website, b: Website) => b.createdAt.getTime() - a.createdAt.getTime()
-    )
-  }
-
-  timeDiff(from: Date) {
-    // 現在時刻との差分＝経過時間
-    const diff = new Date().getTime() - from.getTime()
-    // 経過時間をDateに変換
-    const elapsed = new Date(diff)
-
-    // 大きい単位から順に表示
-    if (elapsed.getUTCFullYear() - 1970) {
-      return elapsed.getUTCFullYear() - 1970 + '年前'
-    } else if (elapsed.getUTCMonth()) {
-      return elapsed.getUTCMonth() + 'ヶ月前'
-    } else if (elapsed.getUTCDate() - 1) {
-      return elapsed.getUTCDate() - 1 + '日前'
-    } else if (elapsed.getUTCHours()) {
-      return elapsed.getUTCHours() + '時間前'
-    } else if (elapsed.getUTCMinutes()) {
-      return elapsed.getUTCMinutes() + '分前'
-    } else {
-      return elapsed.getUTCSeconds() + 'たった今'
+    if (websites) {
+      this.websites = websites
     }
   }
 
-  logout() {
-    window.localStorage.removeItem('getPocketAccessToken')
-    this.$router.push('/')
+  timeDiff(from: Date) {
+    const diffMs = new Date().getTime() - from.getTime()
+    const diff = new Date(diffMs)
+
+    // 大きい単位から順に表示
+    if (diff.getUTCFullYear() - 1970) {
+      return diff.getUTCFullYear() - 1970 + '年前'
+    } else if (diff.getUTCMonth()) {
+      return diff.getUTCMonth() + 'ヶ月前'
+    } else if (diff.getUTCDate() - 1) {
+      return diff.getUTCDate() - 1 + '日前'
+    } else if (diff.getUTCHours()) {
+      return diff.getUTCHours() + '時間前'
+    } else if (diff.getUTCMinutes()) {
+      return diff.getUTCMinutes() + '分前'
+    } else {
+      return diff.getUTCSeconds() + 'たった今'
+    }
+  }
+
+  screenshot(url: string) {
+    const base64url = window
+      .btoa(unescape(encodeURIComponent(url)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
+
+    return `/api/img/800x450/${base64url}.png`
   }
 }
 </script>
+
+<style scoped>
+.websites {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  justify-content: center;
+  max-width: 816px;
+  margin: 0 auto;
+}
+
+.website {
+  margin: 16px 8px;
+  text-align: left;
+}
+
+.slider-wrapper {
+  display: flex;
+  max-width: 300px;
+  margin: 0 auto;
+  vertical-align: middle;
+}
+</style>
