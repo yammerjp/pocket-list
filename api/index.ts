@@ -3,7 +3,9 @@ import dotenv from 'dotenv'
 import axios from 'axios'
 
 dotenv.config()
+
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
+const screenshotHost = process.env.SCREENSHOT_HOST
 
 const app = express()
 
@@ -122,9 +124,7 @@ post('/list', async (req: express.Request) => {
 app.get(/\/img\/.*$/, async (req, res) => {
   const reqPath = req.path.slice(5)
   const responsed = await axios
-    .get(`https://${process.env.SCREENSHOT_HOST}/${reqPath}`, {
-      maxRedirects: 0,
-    })
+    .get(`https://${screenshotHost}/${reqPath}`, { maxRedirects: 0 })
     .catch((e) => {
       return e.response
     })
