@@ -57,7 +57,15 @@ export default {
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    terser: {
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === 'production',
+        },
+      },
+    },
+  },
   serverMiddleware: ['~~/api/'],
   getpocket: {
     consumerKey: process.env.GETPOCKET_CONSUMER_KEY,
