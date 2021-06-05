@@ -121,7 +121,7 @@ post('/list', async (req: express.Request) => {
   return res?.data
 })
 
-app.get(/\/img\/.*$/, async (req, res) => {
+app.get(/^\/img\/.*$/, async (req, res) => {
   const reqPath = req.path.slice(5)
   const responsed = await axios
     .get(`https://${screenshotHost}/${reqPath}`, { maxRedirects: 0 })
