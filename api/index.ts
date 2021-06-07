@@ -1,11 +1,10 @@
 import express from 'express'
-import dotenv from 'dotenv'
 import axios from 'axios'
+import nuxtConfig from '../nuxt.config'
 
-dotenv.config()
-
-const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
-const screenshotHost = process.env.SCREENSHOT_HOST
+const pocketConsumerKey = nuxtConfig.pocketList.consumerKey
+const screenshotHost = nuxtConfig.pocketList.screenshotHost
+const hostingDomain = nuxtConfig.pocketList.hostingDomain
 
 let keyLimitRestorationUnixTimeMs = 0
 
@@ -71,7 +70,7 @@ post('/pre-authorize', async (_) => {
     'https://getpocket.com/v3/oauth/request',
     {
       consumer_key: pocketConsumerKey,
-      redirect_uri: 'http://localhost/redirected',
+      redirect_uri: `http://${hostingDomain}/redirected`,
     },
     { headers: { 'X-Accept': 'application/json' } }
   )
@@ -91,7 +90,6 @@ post('/authorize', async (req: express.Request) => {
   const res = await axios.post(
     'https://getpocket.com/v3/oauth/authorize',
     {
-      // consumer_key: pocketConsumerKey,
       consumer_key: pocketConsumerKey,
       code,
     },

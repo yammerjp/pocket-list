@@ -1,5 +1,8 @@
 import axios from 'axios'
 import Website from '../types/website'
+import nuxtConfig from '../nuxt.config'
+
+const hostingDomain = nuxtConfig.pocketList.hostingDomain
 
 class ApiClient {
   constructor() {
@@ -47,7 +50,7 @@ class ApiClient {
       return { loggedIn: false }
     }
     this.setCode(code)
-    const redirectUri = 'http://localhost:3000/redirected'
+    const redirectUri = `http://${hostingDomain}/redirected`
     return {
       loggedIn: false,
       transition: `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}`,

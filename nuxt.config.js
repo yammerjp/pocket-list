@@ -67,7 +67,9 @@ export default {
     },
   },
   serverMiddleware: ['~~/api/'],
-  getpocket: {
+  pocketList: {
     consumerKey: process.env.GETPOCKET_CONSUMER_KEY,
+    screenshotHost: process.env.SCREENSHOT_HOST,
+    hostingDomain: process.env.HOSTING_DOMAIN || 'localhost:3000',
   },
 }
