@@ -7,6 +7,8 @@ dotenv.config()
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 const screenshotHost = process.env.SCREENSHOT_HOST
 
+let keyLimitRestorationUnixTimeMs = 0
+
 const app = express()
 
 app.use(express.json())
@@ -107,6 +109,13 @@ post('/list', async (req: express.Request) => {
   if (typeof accessToken !== 'string') {
     return reject('invalid request. need accessToken', 400)
   }
+
+  if (keyLimitRestorationUnixTimeMs > Date.now()) {
+    // eslint-disable-next-line no-console
+    console.log(`limited... wait ${keyLimitRestorationUnixTimeMs} sec`)
+    return reject('request to getpocket.com is limited', 420)
+  }
+
   const res = await axios.post(
     'https://getpocket.com/v3/get',
     {
@@ -118,6 +127,19 @@ post('/list', async (req: express.Request) => {
     },
     { headers: { 'X-Accept': 'application/json' } }
   )
+
+  // Check rate limit for getpocket.com
+  const rate = Number(res.headers['x-limit-key-remaining'])
+  const sec = Number(res.headers['x-limit-key-reset'])
+  // console.log(`rate: ${rate}, sec: ${sec}`)
+  if (!isNaN(sec) && !isNaN(rate) && rate < 100) {
+    keyLimitRestorationUnixTimeMs = Date.now() + sec * 1000
+    // eslint-disable-next-line no-console
+    console.log(
+      `WARNING! consumer key close to limit!  remaining..${rate}times, restoration..${sec}sec later`
+    )
+  }
+
   return res?.data
 })
 
