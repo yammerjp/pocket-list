@@ -43,7 +43,7 @@ const post = (requestPath: string, fn: ServerFunction) => {
         let statusCode = 500
         if (
           e instanceof ResponseError &&
-          (e.statusCode < 400 || e.statusCode >= 600)
+          (e.statusCode > 400 || e.statusCode <= 600)
         ) {
           statusCode = e.statusCode
         }
