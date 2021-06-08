@@ -30,7 +30,7 @@ function timeDiff(from: Date) {
   } else if (diff.getUTCMinutes()) {
     return diff.getUTCMinutes() + '分前'
   } else {
-    return diff.getUTCSeconds() + 'たった今'
+    return 'たった今'
   }
 }
 
