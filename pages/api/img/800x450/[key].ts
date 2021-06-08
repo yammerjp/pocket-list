@@ -6,10 +6,10 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   const {
     query: { key },
   } = request
-  const reqPath = key.slice(5)
 
+  console.log(`${screenshotURL}/800x450/${key}`)
   const responsed = await axios
-    .get(`${screenshotURL}/img/800x450/${reqPath}`, { maxRedirects: 0 })
+    .get(`${screenshotURL}/800x450/${key}`, { maxRedirects: 0 })
     .catch((e) => {
       return e.response
     })
