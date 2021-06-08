@@ -138,7 +138,7 @@ export default function Home() {
             <div className="website" key={website.id} style={{margin: 8, marginTop: imgWidth*32/400, width: imgWidth, textAlign: 'left'}}>
               <div className="link-wrapper">
                 <a href={website.url} target="_blank" rel="noopener">
-                  <div>
+                  <div style={{background: 'no-repeat center url("/loading-icon.gif")', margin: 0, padding: 0}}>
                     <img src={screenshot(website.url)} width={imgWidth} height={imgWidth*9/16} style={{border: 'solid 1px #eeeeee'}}/>
                   </div>
                   <div>
