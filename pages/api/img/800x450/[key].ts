@@ -1,6 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import axios from 'axios'
-const screenshotHost = process.env.SCREENSHOT_HOST
+const screenshotURL = process.env.SCREENSHOT_URL
 
 export default async (request: NextApiRequest, response: NextApiResponse) => {
   const {
@@ -9,7 +9,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   const reqPath = key.slice(5)
 
   const responsed = await axios
-    .get(`https://${screenshotHost}/img/800x450/${reqPath}`, { maxRedirects: 0 })
+    .get(`${screenshotURL}/img/800x450/${reqPath}`, { maxRedirects: 0 })
     .catch((e) => {
       return e.response
     })

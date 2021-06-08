@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Website from '../types/website'
-const hostingDomain = process.env.NEXT_PUBLIC_HOSTING_DOMAIN
+const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 
 class ApiClient {
   constructor() {
@@ -60,7 +60,7 @@ class ApiClient {
       return { loggedIn: false }
     }
     this.setCode(code)
-    const redirectUri = `http://${hostingDomain}/redirected`
+    const redirectUri = `${hostingURL}/redirected`
     return {
       loggedIn: false,
       transition: `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}`,

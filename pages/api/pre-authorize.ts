@@ -2,7 +2,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import axios from 'axios'
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
-const hostingDomain = process.env.NEXT_PUBLIC_HOSTING_DOMAIN
+const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 
 // codeを受け取ってaccess_tokenを返す
 export default async (request: NextApiRequest, response: NextApiResponse) => {
@@ -13,7 +13,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     'https://getpocket.com/v3/oauth/request',
     {
       consumer_key: pocketConsumerKey,
-      redirect_uri: `http://${hostingDomain}/redirected`,
+      redirect_uri: `${hostingURL}/redirected`,
     },
     { headers: { 'X-Accept': 'application/json' } }
   )
