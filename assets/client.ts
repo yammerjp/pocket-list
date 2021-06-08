@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Website from '../types/website'
-const hostingDomain = process.env.HOSTING_DOMAIN
+const hostingDomain = process.env.NEXT_PUBLIC_HOSTING_DOMAIN
 
 class ApiClient {
   constructor() {

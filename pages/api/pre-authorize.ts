@@ -2,7 +2,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import axios from 'axios'
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
-const hostingDomain = process.env.HOSTING_DOMAIN
+const hostingDomain = process.env.NEXT_PUBLIC_HOSTING_DOMAIN
 
 // codeを受け取ってaccess_tokenを返す
 export default async (request: NextApiRequest, response: NextApiResponse) => {
