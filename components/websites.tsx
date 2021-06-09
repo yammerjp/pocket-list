@@ -129,6 +129,9 @@ export default function WebsitesComponent({
           flexWrap: "wrap",
           margin: "0 auto",
           width: getOuterImgWidth(imgWidth) * state.column,
+          boxAlign: 'start',
+          //  flexAlign: 'start',
+            alignItems: 'flex-start',
         }}
       >
         {websites.map((website) => (

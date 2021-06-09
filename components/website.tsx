@@ -6,7 +6,6 @@ function screenshot(url: string) {
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '')
-
   return `/api/img/800x450/${base64url}.png`
 }
 
@@ -76,6 +75,9 @@ export default function WebsiteComponent({
         marginTop: (imgWidth * 32) / 400,
         width: imgWidth,
         textAlign: "left",
+        borderRadius: 8,
+        backgroundColor: "#ffffff",
+        border: "solid 1px #cccccc",
       }}
     >
       <div className="link-wrapper">
@@ -89,12 +91,14 @@ export default function WebsiteComponent({
           >
             <img
               src={screenshot(website.url)}
-              width={imgWidth}
-              height={(imgWidth * 9) / 16}
-              style={{ border: "solid 1px #eeeeee" }}
+              width={imgWidth-2}
+              height={((imgWidth-2) * 9) / 16}
+              style={{
+                borderRadius: "8px 8px 0px 0px",
+              }}
             />
           </div>
-          <div>
+          <div style={{ margin: "4px 8px" }}>
             <h3 style={{ fontSize: titleFontSize(imgWidth), margin: 0 }}>
               {website.title}
             </h3>
@@ -105,6 +109,7 @@ export default function WebsiteComponent({
         className="supplement"
         style={{
           fontSize: Math.max(Math.floor(titleFontSize(imgWidth) * 0.7), 12),
+          margin: "4px 8px",
         }}
       >
         {website.host} - {timeDiff(website.createdAt)}

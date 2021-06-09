@@ -25,7 +25,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     {
       consumer_key: pocketConsumerKey,
       access_token: accessToken,
-      count: 10,
+      count: 100,
       detailType: 'complete',
       state: 'all',
     },
