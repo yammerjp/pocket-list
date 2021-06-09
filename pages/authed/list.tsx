@@ -63,11 +63,18 @@ function titleFontSize(imgWidth: Number) {
 }
 
 function getPageWidth() {
-  if (process.browser) {
-    return window.document.body.clientWidth
-  } else {
+  if (!process.browser) {
     return 320
   }
+  const width = window.document.body.clientWidth
+  if (width > 900) {
+    return width - 100
+  }
+  if (width > 800) {
+    return 800
+  }
+  return width
+
 }
 
 type ListPageState = {
@@ -130,7 +137,7 @@ export default function Home() {
 
   const columnMax = getColumnMax(state.pageWidth)
   const columnMin = getColumnMin(state.pageWidth)
-  const imgWidth = getImgWidth(state.column, state.pageWidth)
+  const imgWidth = Math.floor(getImgWidth(state.column, state.pageWidth))
 
   useEffect(() => {
     console.log('useEffect()')
@@ -189,7 +196,7 @@ export default function Home() {
             defaultValue={columnMax-state.column}
           />
         </div>
-        <div className="websites" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 auto', width: (imgWidth + 16) * state.column }}>
+        <div className="websites" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 auto', width: getOuterImgWidth(imgWidth) * state.column }}>
           { websites.map(website => (
             <div className="website" key={website.id} style={{margin: 8, marginTop: imgWidth*32/400, width: imgWidth, textAlign: 'left'}}>
               <div className="link-wrapper">
