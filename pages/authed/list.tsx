@@ -62,24 +62,75 @@ function titleFontSize(imgWidth: Number) {
   return 32
 }
 
-function calcWindowWidth(width: number, column: number): number {
-  return Math.min(800, (width / column) - 16)
+function getPageWidth() {
+  if (process.browser) {
+    return window.document.body.clientWidth
+  } else {
+    return 320
+  }
 }
 
-function columnMax(width: number) {
-  return Math.floor(width / 100)
+type ListPageState = {
+  pageWidth: number;
+  column: number
+  imgRatio: number;
+}
+
+const imgWidthMin = 100;
+const imgWidthMax = 800;
+const imgMarginWidth = 8;
+const pageMarginWidth = 8;
+
+function getOuterImgWidth(imgWidth: number):number {
+  return imgWidth + (imgMarginWidth*2)
+}
+function getInnerPageWidth(pageWidth: number):number {
+  return pageWidth - (pageMarginWidth*2)
+}
+function getColumnMin(pageWidth: number):number {
+  return Math.max(Math.floor(getInnerPageWidth(pageWidth) / getOuterImgWidth(imgWidthMax)), 1)
+}
+function getColumnMax(pageWidth: number):number {
+  return Math.floor(getInnerPageWidth(pageWidth) / getOuterImgWidth(imgWidthMin))
+}
+function getColumn(columnWill: number, pageWidth:number):number {
+  return Math.min(Math.max(columnWill, getColumnMin(pageWidth)), getColumnMax(pageWidth))
+}
+
+function getColumnFromImgRatio(pageWidth: number, imgRatio: number) {
+  const imgWidth = pageWidth * imgRatio
+  const outerImgWidth = getOuterImgWidth(imgWidth)
+  const innerPageWidth = getInnerPageWidth(pageWidth)
+  return  getColumn(Math.round(innerPageWidth / outerImgWidth), pageWidth)
+}
+
+function getImgWidth(column: number, pageWidth: number):number {
+  return Math.min(800, (getInnerPageWidth(pageWidth) / getColumn(column, pageWidth)) - (imgMarginWidth * 2))
+}
+
+function getRatio(column: number, pageWidth: number):number {
+  const imgWidth = getImgWidth(column, pageWidth)
+  return imgWidth / pageWidth
+}
+
+function initialState():ListPageState {
+  const pageWidth = getPageWidth();
+  const column = getColumnMin(pageWidth)
+  const imgWidth = getImgWidth(column, pageWidth)
+  const imgRatio = imgWidth / pageWidth
+  return { pageWidth, column, imgRatio}
 }
 
 export default function Home() {
   const [error, setError] = useState<Error|null>(null)
   const [isLoaded, setIsLoaded] = useState<boolean>(false)
   const [websites, setWebsites] = useState<Website[]>([])
-  const [column, setColumn] = useState<number>(process.browser? Math.floor(window.innerWidth / 300) : 1)
-  const [windowWidth, setWindowWidth] = useState<number>(process.browser ? window.innerWidth: 300)
-  const width = windowWidth || ( process.browser ? window.innerWidth : 300)
-  const imgWidth = calcWindowWidth(width, column || 1)
 
-  console.log(column)
+  const [state, setState] = useState<ListPageState>(initialState())
+
+  const columnMax = getColumnMax(state.pageWidth)
+  const columnMin = getColumnMin(state.pageWidth)
+  const imgWidth = getImgWidth(state.column, state.pageWidth)
 
   useEffect(() => {
     console.log('useEffect()')
@@ -96,11 +147,12 @@ export default function Home() {
     }
     window.addEventListener('resize', e => {
       console.log('resize event')
-      const width = window.innerWidth
-      setWindowWidth(width)
-      // PLEASE FIX NEXT LINE
-      setColumn(Math.floor(column * width / windowWidth))
-
+      setState(function(prevState:ListPageState):ListPageState {
+        const pageWidth = getPageWidth()
+        const { imgRatio } = prevState
+        const column = getColumnFromImgRatio(pageWidth, imgRatio)
+        return {pageWidth, column, imgRatio}
+      })
     })
   }, [])
 
@@ -129,11 +181,15 @@ export default function Home() {
           pocket-list
         </h1>
         <div>
-          大
-          <input type="range" min="1" max={columnMax(windowWidth)} onChange={ (e: any) => setColumn(e.target.value) } defaultValue={process.browser? Math.floor(window.innerWidth / 300) : 1}/>
-          小
+          <input
+            type="range"
+            min={0}
+            max={columnMax - columnMin}
+            onChange={ ({target: {value}}: any) => setState(({pageWidth}) => ({ pageWidth, column: (columnMax-value), imgRatio: getRatio((columnMax-value), pageWidth) })) }
+            defaultValue={columnMax-state.column}
+          />
         </div>
-        <div className="websites" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 auto', width: (imgWidth + 16) * column }}>
+        <div className="websites" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 auto', width: (imgWidth + 16) * state.column }}>
           { websites.map(website => (
             <div className="website" key={website.id} style={{margin: 8, marginTop: imgWidth*32/400, width: imgWidth, textAlign: 'left'}}>
               <div className="link-wrapper">
