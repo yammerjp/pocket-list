@@ -193,7 +193,7 @@ export default function Home() {
             min={0}
             max={columnMax - columnMin}
             onChange={ ({target: {value}}: any) => setState(({pageWidth}) => ({ pageWidth, column: (columnMax-value), imgRatio: getRatio((columnMax-value), pageWidth) })) }
-            defaultValue={columnMax-state.column}
+            value={columnMax-state.column}
           />
         </div>
         <div className="websites" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 auto', width: getOuterImgWidth(imgWidth) * state.column }}>
