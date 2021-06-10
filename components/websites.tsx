@@ -20,6 +20,7 @@ type ListPageState = {
   pageWidth: number;
   column: number;
   imgRatio: number;
+  visibleWebsites: number;
 };
 
 const imgWidthMin = 100;
@@ -76,7 +77,19 @@ function initialState(): ListPageState {
   const column = getColumnMin(pageWidth);
   const imgWidth = getImgWidth(column, pageWidth);
   const imgRatio = imgWidth / pageWidth;
-  return { pageWidth, column, imgRatio };
+  return { pageWidth, column, imgRatio, visibleWebsites: 100 };
+}
+
+function scrollPosition():number {
+  if (!process.browser) {
+    return 0
+  }
+  const scrollableY = document.body.clientHeight - window.innerHeight
+  if (scrollableY <= 0) {
+    return 0
+  }
+  const scrolledY = window.scrollY
+  return scrolledY / scrollableY
 }
 
 export default function WebsitesComponent({
@@ -98,11 +111,22 @@ export default function WebsitesComponent({
       console.log("resize event");
       setState(function (prevState: ListPageState): ListPageState {
         const pageWidth = getPageWidth();
-        const { imgRatio } = prevState;
+        const { imgRatio, visibleWebsites } = prevState;
         const column = getColumnFromImgRatio(pageWidth, imgRatio);
-        return { pageWidth, column, imgRatio };
+        return { pageWidth, column, imgRatio, visibleWebsites };
       });
     });
+
+    window.addEventListener('scroll', () => {
+      const pos = scrollPosition()
+      console.log(pos)
+      if (pos> 0.95) {
+        console.log('strech')
+        setState(({pageWidth, column, imgRatio, visibleWebsites}) => ({
+            pageWidth, column, imgRatio, visibleWebsites: visibleWebsites+column*3,
+        }))
+      }
+    })
   }, []);
 
   return (
@@ -113,10 +137,11 @@ export default function WebsitesComponent({
           min={0}
           max={columnMax - columnMin}
           onChange={({ target: { value } }: any) =>
-            setState(({ pageWidth }) => ({
+            setState(({ pageWidth, visibleWebsites }) => ({
               pageWidth,
               column: columnMax - value,
               imgRatio: getRatio(columnMax - value, pageWidth),
+              visibleWebsites,
             }))
           }
           value={columnMax - state.column}
@@ -134,7 +159,7 @@ export default function WebsitesComponent({
             alignItems: 'flex-start',
         }}
       >
-        {websites.map((website) => (
+        {websites.slice(0, state.visibleWebsites).map((website) => (
           <WebsiteComponent
             website={website}
             imgWidth={imgWidth}

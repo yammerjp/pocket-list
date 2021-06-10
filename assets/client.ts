@@ -104,12 +104,12 @@ class ApiClient {
     this.accessToken = undefined
   }
 
-  fetchWebsites() {
+  fetchWebsites(since?: number) {
     const accessToken = this.accessToken
     if (!this.accessToken) {
       return Promise.reject(new Error('did not login'))
     }
-    return axios.post('/api/list', { accessToken }).then(response2websites)
+    return axios.post('/api/list', { accessToken, since }).then(response2websites)
   }
 }
 

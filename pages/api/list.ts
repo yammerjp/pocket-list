@@ -10,6 +10,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   }
 
   const accessToken = request?.body?.accessToken
+  const since = request?.body?.since || 0
   if (typeof accessToken !== 'string') {
     return response.status(400).json({ error: 'invalid request. need accessToken'})
   }
@@ -25,9 +26,9 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     {
       consumer_key: pocketConsumerKey,
       access_token: accessToken,
-      count: 100,
       detailType: 'complete',
       state: 'all',
+      since,
     },
     { headers: { 'X-Accept': 'application/json' } }
   )
