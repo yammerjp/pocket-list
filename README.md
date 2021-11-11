@@ -1,3 +1,15 @@
+# pocket-list
+
+[pocket-list](https://pocket-list.yammer.jp) is websites viewwer in [Pocket](https://getpocket.com).
+
+pocket-list lays out a tiled list of screenshots of websites saved in Pocket instead of OGImage.
+
+![screenshot](screenshot.png)
+
+A website of pocket-list is built with Next.js, and creating screenshot images of websites saved in Pocket is built with Puppeteer and AWS Lambda.
+
+---
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
