@@ -1,6 +1,6 @@
 # pocket-list
 
-[pocket-list](https://pocket-list.yammer.jp) is websites viewwer in [Pocket](https://getpocket.com).
+[pocket-list](https://pocket-list.yammer.jp) is websites viewer in [Pocket](https://getpocket.com).
 
 pocket-list lays out a tiled list of screenshots of websites saved in Pocket instead of OGImage.
 
