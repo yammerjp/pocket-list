@@ -21,7 +21,7 @@ export default function ListPage() {
     })
   }, [])
 
-  if (process.browser && !client.loggedIn()) {
+  if (process.browser && !client.getLoggedIn()) {
     router.push('/')
     return (<div></div>)
   }
@@ -45,6 +45,12 @@ export default function ListPage() {
         <h1>
           pocket-list
         </h1>
+        <div>
+        links:
+          <a href="/authed/today">copy-markdowns</a>
+          /
+          <a href="/logout">logout</a>
+        </div>
         <WebsitesComponent websites={websites} />
       </main>
     </div>  )

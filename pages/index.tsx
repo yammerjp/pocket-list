@@ -17,7 +17,7 @@ async function login() {
 }
 
 export default function Home() {
-  if (client.loggedIn()) {
+  if (client.getLoggedIn()) {
     router.push('/authed/list')
   }
 

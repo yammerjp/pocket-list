@@ -1,5 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import axios from 'axios'
+import { getAccessToken } from '../../assets/cookies'
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
 let keyLimitRestorationUnixTimeMs = 0
@@ -9,7 +10,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     return response.status(405).json({ error: 'method not allowed'})
   }
 
-  const accessToken = request?.body?.accessToken
+  const accessToken = getAccessToken(request)
   if (typeof accessToken !== 'string') {
     return response.status(400).json({ error: 'invalid request. need accessToken'})
   }

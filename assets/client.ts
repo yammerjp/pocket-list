@@ -3,16 +3,16 @@ import Website from '../types/website'
 const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 
 class ApiClient {
-  constructor() {
-    if (typeof window === 'undefined') {
-      return
+  private setLoggedIn(login: boolean) {
+    this.loggedIn = login
+    window.localStorage.setItem('pocket-list-logged-in', this.loggedIn)
+  }
+
+  private getLoggedIn() {
+    if (this.loggedIn === undefined) {
+      this.loggedIn = window.localStorage.getItem('pocket-list-logged-in')
     }
-    const accessToken = window.localStorage.getItem('getPocketAccessToken')
-    if (typeof accessToken === 'string') {
-      this.accessToken = accessToken
-    } else {
-      this.accessToken = undefined
-    }
+    return this.loggedIn
   }
 
   private setCode(code: string) {
@@ -20,6 +20,16 @@ class ApiClient {
       return
     }
     window.localStorage.setItem('getPocketCode', code)
+  }
+
+  private getAndRemoveCode(): string|undefined {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const ret = window.localStorage.getItem('getPocketCode')
+    window.localStorage.removeItem('getPocketCode')
+    return ret
+
   }
 
   private removeCode() {
@@ -38,12 +48,8 @@ class ApiClient {
 
   private accessToken?: string
 
-  loggedIn() {
-    return !!client.accessToken
-  }
-
   async tryLogin(): Promise<{ loggedIn: boolean; transition?: string }> {
-    if (this.loggedIn()) {
+    if (this.getLoggedIn()) {
       // alert('already logined')
       return { loggedIn: true }
     }
@@ -77,39 +83,32 @@ class ApiClient {
     }
     this.removeCode()
 
-    const accessToken = await axios
+    const isLoggedIn = await axios
       .post('/api/authorize', {
         code,
       })
-      .then((res) => res?.data?.accessToken)
+      .then(() => true)
       .catch((e) => {
         // eslint-disable-next-line no-console
         console.log(e)
-        return undefined
+        return false
       })
-
-    if (!accessToken) {
-      return false
-    }
-    this.accessToken = accessToken
-    window.localStorage.setItem('getPocketAccessToken', accessToken)
-    return true
+    this.setLoggedIn(isLoggedIn)
+    return this.getLoggedIn()
   }
 
-  logout() {
-    if (typeof window === 'undefined') {
-      return
-    }
-    window.localStorage.removeItem('getPocketAccessToken')
-    this.accessToken = undefined
+  async logout() {
+    const res = await axios.post('/api/logout')
+    this.setLoggedIn(false)
+    return res
   }
 
   fetchWebsites() {
-    const accessToken = this.accessToken
-    if (!this.accessToken) {
+    if (!this.getLoggedIn()) {
       return Promise.reject(new Error('did not login'))
     }
-    return axios.post('/api/list', { accessToken }).then(response2websites)
+
+    return axios.post('/api/list').then(response2websites)
   }
 }
 

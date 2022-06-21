@@ -4,7 +4,7 @@ const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
 const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 
-// codeを受け取ってaccess_tokenを返す
+// codeを発行
 export default async (request: NextApiRequest, response: NextApiResponse) => {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'method not allowed' })
