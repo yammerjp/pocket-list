@@ -11,7 +11,6 @@ export default function ListPage() {
   const [websites, setWebsites] = useState<Website[]>([])
 
   useEffect(() => {
-    console.log('useEffect()')
     client.fetchWebsites().then(websites => {
       setIsLoaded(true)
       setWebsites(websites)

@@ -3,7 +3,7 @@ const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 const isHttps = /^https:\/\//.test(hostingURL)
 
 const cookieSerializer = (pairs: {[string]: string|true}): string => 
-  Object.keys(pairs).map(key => `${key}${ pairs[key]===true ? '' : '='+pairs[key] };`).join(' ')
+  Object.keys(pairs).map(key => `${key}${ pairs[key]===true ? '' : '='+pairs[key] }`).join('; ')
 
 const setCookie = (
   res: NextApiResponse,
@@ -17,9 +17,7 @@ const setCookie = (
     ...isHttps&&{'Secure': true},
     ...(options?.maxAge !== undefined)&&{'Max-Age': `${options.maxAge}`}
   })
-  console.log(serialized)
   res.setHeader('Set-Cookie', serialized)
-  // `${name}=${value}; SameSite=Strict; HttpOnly; ${ isHttps ? 'Secure; ' : ''}${ options?.maxAge !== undefined ? `Max-Age=${options.maxAge};` }`)
 }
 
 
