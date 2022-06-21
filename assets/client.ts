@@ -3,14 +3,21 @@ import Website from '../types/website'
 const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
 
 class ApiClient {
+  private loggedIn:boolean|undefined = undefined
   private setLoggedIn(login: boolean) {
+    if (typeof window === 'undefined') {
+      return false
+    }
     this.loggedIn = login
-    window.localStorage.setItem('pocket-list-logged-in', this.loggedIn)
+    window.localStorage.setItem('pocket-list-logged-in', this.loggedIn ? 'logged-in': 'logged-out')
   }
 
-  private getLoggedIn() {
+  public getLoggedIn() {
+    if (typeof window === 'undefined') {
+      return false
+    }
     if (this.loggedIn === undefined) {
-      this.loggedIn = window.localStorage.getItem('pocket-list-logged-in')
+      this.loggedIn = window.localStorage.getItem('pocket-list-logged-in') === 'logged-in'
     }
     return this.loggedIn
   }
@@ -20,16 +27,6 @@ class ApiClient {
       return
     }
     window.localStorage.setItem('getPocketCode', code)
-  }
-
-  private getAndRemoveCode(): string|undefined {
-    if (typeof window === 'undefined') {
-      return
-    }
-    const ret = window.localStorage.getItem('getPocketCode')
-    window.localStorage.removeItem('getPocketCode')
-    return ret
-
   }
 
   private removeCode() {

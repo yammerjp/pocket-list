@@ -1,15 +1,15 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 const hostingURL = process.env.NEXT_PUBLIC_HOSTING_URL
-const isHttps = /^https:\/\//.test(hostingURL)
+const isHttps = /^https:\/\//.test(hostingURL ?? '')
 
-const cookieSerializer = (pairs: {[string]: string|true}): string => 
+const cookieSerializer = (pairs: {[key: string]: string|true}): string => 
   Object.keys(pairs).map(key => `${key}${ pairs[key]===true ? '' : '='+pairs[key] }`).join('; ')
 
 const setCookie = (
   res: NextApiResponse,
   name: string,
   value: string,
-  options: {maxAge: number}|undefined = {}
+  options: {maxAge: number}|undefined = undefined
 ) => {
   const serialized = cookieSerializer({
     [name]: value,
@@ -47,7 +47,6 @@ export const setAccessToken = (
 
 export const getAccessToken = (
   req: NextApiRequest,
-  res: NextApiResponse
 ): string => {
   return getCookie(req, cookieKeyAccessToken)
 }

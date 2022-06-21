@@ -1,5 +1,5 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import { flashAccessToken } from '../../assets/cookies.ts'
+import { flashAccessToken } from '../../assets/cookies'
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
 export default async (request: NextApiRequest, response: NextApiResponse) => {

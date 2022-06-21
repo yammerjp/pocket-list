@@ -1,6 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import axios from 'axios'
-import { setAccessToken } from '../../assets/cookies.ts'
+import { setAccessToken } from '../../assets/cookies'
 const pocketConsumerKey = process.env.GETPOCKET_CONSUMER_KEY
 
 // codeを受け取ってaccess_tokenを返す
