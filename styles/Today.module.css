@@ -1,0 +1,12 @@
+.markdownText {
+  text-align: left;
+}
+
+.markdownTextarea {
+  width: 100%;
+  height: 10em;
+}
+
+.websiteDescription {
+  font-size: 6px;
+}
