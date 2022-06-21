@@ -64,7 +64,7 @@ export default function ListPage() {
           <input
             type="range"
             value={daysAgo}
-            onChange={e => setDaysAgo(e.target.value)}
+            onChange={e => setDaysAgo(parseInt(e.target.value))}
             min={1}
             max={oldestDiff}
           />
@@ -74,7 +74,7 @@ export default function ListPage() {
           value={websitesInTerm.map(({title, url}) => `[${title}](${url})`).join('\r\n')}
           className={styles.markdownTextarea}
           readOnly
-          onClick={e => copyWithNotice(e.target.value, console.log)}
+          onClick={e => (e.target instanceof HTMLTextAreaElement) && copyWithNotice(e.target.value, console.log)}
         />
         <div>
           {
