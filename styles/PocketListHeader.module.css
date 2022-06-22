@@ -1,0 +1,19 @@
+.headerWrapper {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.rightContainer{
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  height: 100%;
+}
+.leftContainer{
+  width: 50%;
+  text-align: left;
+}
+.linkContent{
+  margin: 0 8px;
+  padding: 0 8px;
+}

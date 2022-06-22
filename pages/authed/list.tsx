@@ -3,7 +3,22 @@ import router from 'next/router'
 import client from '../../assets/client'
 import Website from '../../types/website'
 import WebsitesComponent from '../../components/websites'
+import PocketListHeader from '../../components/PocketListHeader'
 import { useEffect, useState } from 'react'
+
+const renderWithHeader = (p) => (
+    <div>
+      <Head>
+        <title>pocket-list</title>
+        <meta name="description" content="websites' list on getpocket" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main style={{textAlign: 'center'}}>
+        <PocketListHeader />
+        {p}
+      </main>
+    </div>)
 
 export default function ListPage() {
   const [error, setError] = useState<Error|null>(null)
@@ -26,31 +41,13 @@ export default function ListPage() {
   }
 
   if (error) {
-    return (<div>Error: {error.message}</div>)
+    return renderWithHeader(<div>Error: {error.message}</div>)
   }
   if (!isLoaded) {
-    return (<div>Loading...</div>)
+    return renderWithHeader(<div>Loading...</div>)
   }
 
-  return (
-    <div>
-      <Head>
-        <title>pocket-list</title>
-        <meta name="description" content="websites' list on getpocket" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main style={{textAlign: 'center'}}>
-        <h1>
-          pocket-list
-        </h1>
-        <div>
-        links:
-          <a href="/authed/today">copy-markdowns</a>
-          /
-          <a href="/logout">logout</a>
-        </div>
+  return renderWithHeader(
         <WebsitesComponent websites={websites} />
-      </main>
-    </div>  )
+  )
 }

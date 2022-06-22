@@ -2,6 +2,7 @@ import Head from 'next/head'
 import router from 'next/router'
 import styles from '../styles/Home.module.css'
 import client from '../assets/client'
+import { Button } from '@chakra-ui/react'
 
 async function login() {
   const { loggedIn, transition } = await client.tryLogin()
@@ -34,7 +35,7 @@ export default function Home() {
           pocket-list
         </h1>
 
-        <button onClick={login}>login with pocket</button>
+        <Button colorScheme='teal' onClick={login}>login with pocket</Button>
       </main>
     </div>
   )

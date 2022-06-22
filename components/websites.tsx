@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import Website from "../types/website";
 import WebsiteComponent from "./website";
+import {
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderMark,
+} from '@chakra-ui/react'
 
 function getPageWidth() {
   if (!process.browser) {
@@ -108,19 +115,23 @@ export default function WebsitesComponent({
   return (
     <div>
       <div>
-        <input
-          type="range"
+    <Slider aria-label='slider-ex-1' defaultValue={columnMax - state.column}
           min={0}
           max={columnMax - columnMin}
-          onChange={({ target: { value } }: any) =>
+          onChange={(value) =>
             setState(({ pageWidth }) => ({
               pageWidth,
               column: columnMax - value,
               imgRatio: getRatio(columnMax - value, pageWidth),
             }))
           }
-          value={columnMax - state.column}
-        />
+ 
+  >
+          <SliderTrack>
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb />
+        </Slider>
       </div>
       <div
         className="websites"
