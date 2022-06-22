@@ -6,7 +6,7 @@ import WebsitesComponent from '../../components/websites'
 import PocketListHeader from '../../components/PocketListHeader'
 import { useEffect, useState } from 'react'
 
-const renderWithHeader = (p) => (
+const renderWithHeader = (p: JSX.Element) => (
     <div>
       <Head>
         <title>pocket-list</title>

@@ -17,7 +17,14 @@ import { Heading, LinkBox, LinkOverlay, Text } from '@chakra-ui/react'
 import { Button } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
 
-const copyWithNotice = async (targetText: string, noticeFunc: Function) => {
+type ToastArgument = {
+  title: string
+  status: 'success' | 'error' | 'info' | 'warning' | 'loading' | undefined
+  duration: number
+  isClosable: boolean
+}
+
+const copyWithNotice = async (targetText: string, noticeFunc: Function): Promise<ToastArgument> => {
   if (!navigator.clipboard) {
     return noticeFunc({
           title: 'failed to copy',
@@ -35,7 +42,7 @@ const copyWithNotice = async (targetText: string, noticeFunc: Function) => {
     })
 }
 
-const renderWithHeader = (p) => (
+const renderWithHeader = (p: JSX.Element) => (
     <div>
       <Head>
         <title>pocket-list</title>
@@ -108,7 +115,7 @@ export default function ListPage() {
         ({daysAgo.min}〜{daysAgo.max}日前)
       </div>
       <div className={styles.markdownTextCopyButtonWrapper}>
-        <Button colorScheme='teal' onClick={() => copyWithNotice(markdownString, m => toast(m))}>
+        <Button colorScheme='teal' onClick={() => copyWithNotice(markdownString, (m: ToastArgument) => toast(m))}>
           Copy markdown format links
         </Button>
       </div>
